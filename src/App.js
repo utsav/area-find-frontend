@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { findAreaApi } from "./utils";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const [area, setArea] = useState("");
+  const [foundAreaName, setFoundAreaName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setFoundAreaName("");
+    setIsLoading(true);
+
+    if (area.trim() === "") return;
+
+    try {
+      const data = await findAreaApi({ areaName: area });
+      if (data && data.foundAreaName) {
+        setFoundAreaName(data.foundAreaName);
+      }
+    } catch (e) {
+      console.log("e", e);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleInputChange = e => {
+    setArea(e.target.value);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="root">
+      <form onSubmit={handleSubmit}>
+        <div className="input-container">
+          <input onChange={handleInputChange} value={area} />
+          {!isLoading ? (
+            <button type="submit">SUBMIT</button>
+          ) : (
+            <div>Processing...</div>
+          )}
+        </div>
+      </form>
+      {!isLoading && foundAreaName && (
+        <span className="area-name">{foundAreaName}</span>
+      )}
     </div>
   );
-}
+};
 
 export default App;
